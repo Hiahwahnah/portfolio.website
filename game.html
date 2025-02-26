@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="favicon.png" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        .board { display: grid; grid-template-columns: repeat(3, 100px); grid-gap: 5px; justify-content: center; }
+        .cell { width: 100px; height: 100px; display: flex; align-items: center; justify-content: center;
+                font-size: 2em; border: 2px solid black; cursor: pointer; }
+        .cell.taken { cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <img src="III.webp" alt="My Portfolio Logo" class="logo-img">
+                My Portfolio
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="resume.html">Resume</a></li>
+                <li><a href="about.html">About Me</a></li>
+                <li><a href="projects.html">Projects</a></li>
+                <li><a href="game.html">Game</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <h1>Tic-Tac-Toe</h1>
+    <div class="board" id="board"></div>
+    <p id="status">Your turn!</p>
+    <button onclick="resetGame()">Restart</button>
+
+    <script>
+        let pyodide;
+
+        async function main() {
+            pyodide = await loadPyodide();
+            await pyodide.runPythonAsync(`
+import random
+
+def check_winner(board):
+    for line in [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]]:
+        if board[line[0]] == board[line[1]] == board[line[2]] != ' ':
+            return board[line[0]]
+    return None if ' ' in board else 'Tie'
+
+def ai_move(board):
+    empty = [i for i in range(9) if board[i] == ' ']
+    return random.choice(empty) if empty else -1
+            `);
+            resetGame();
+        }
+
+        async function playerMove(index) {
+            let board = getBoard();
+            if (board[index] !== ' ') return;
+            board[index] = 'X';
+            updateBoard(board);
+            let winner = await checkWinner(board);
+            if (winner) return;
+            setTimeout(aiTurn, 500);
+        }
+
+        async function aiTurn() {
+            let board = getBoard();
+            let move = await pyodide.runPythonAsync(`ai_move(${JSON.stringify(board)})`);
+            if (move !== -1) board[move] = 'O';
+            updateBoard(board);
+            await checkWinner(board);
+        }
+
+        async function checkWinner(board) {
+            let result = await pyodide.runPythonAsync(`check_winner(${JSON.stringify(board)})`);
+            if (result && result !== 'None') {
+                document.getElementById('status').innerText =
+                    result === 'Tie' ? "It's a tie!" : `${result} wins!`;
+                document.querySelectorAll('.cell').forEach(cell => cell.classList.add('taken'));
+                return true;
+            }
+            return false;
+        }
+
+        function getBoard() {
+            return Array.from(document.querySelectorAll('.cell')).map(cell => cell.innerText || ' ');
+        }
+
+        function updateBoard(board) {
+            document.querySelectorAll('.cell').forEach((cell, i) => {
+                cell.innerText = board[i];
+                cell.classList.toggle('taken', board[i] !== ' ');
+            });
+        }
+
+        function resetGame() {
+            document.getElementById('board').innerHTML =
+                Array(9).fill().map((_, i) => `<div class='cell' onclick='playerMove(${i})'></div>`).join('');
+            document.getElementById('status').innerText = "Your turn!";
+        }
+
+        main();
+    </script>
+    <footer>
+        <p>&copy; 2025 My Portfolio | Designed by H. Richard Neal III</p>
+    </footer>
+</body>
+</html>
