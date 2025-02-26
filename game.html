@@ -4,15 +4,124 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tic-Tac-Toe</title>
-    <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="favicon.png" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
     <style>
-        body { text-align: center; font-family: Arial, sans-serif; }
-        .board { display: grid; grid-template-columns: repeat(3, 100px); grid-gap: 5px; justify-content: center; }
-        .cell { width: 100px; height: 100px; display: flex; align-items: center; justify-content: center;
-                font-size: 2em; border: 2px solid black; cursor: pointer; }
-        .cell.taken { cursor: not-allowed; }
+        /* General Styles */
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            color: #fff;
+            background-color: #000;
+        }
+
+        h1, h2, h3 {
+            color: #ff0000;
+        }
+
+        /* Tic-Tac-Toe Grid Styles */
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 5px;
+            justify-content: center;
+            margin: 0 auto; /* Ensures the board is centered */
+            border: 2px solid red; /* Border around the whole board */
+        }
+
+        /* Tic-Tac-Toe Cell Styles */
+        .cell {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            border: 2px solid red;    /* Red border */
+            cursor: pointer;
+            background-color: #222;   /* Black background for cells */
+        }
+
+        .cell.taken {
+            cursor: not-allowed;
+            background-color: #444; /* Slightly lighter background for taken cells */
+        }
+
+        /* Button Styles */
+        button {
+            background-color: red;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: darkred;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            background: #ff0000;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            flex-wrap: wrap;
+        }
+
+        .navbar .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar .logo .logo-img {
+            width: 40px;  /* Adjust the size of the logo */
+            height: auto;
+            margin-right: 10px;
+        }
+
+        .nav-links {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .nav-links li {
+            margin: 0 10px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 15px;
+            background: #ff0000;
+            color: white;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -100,8 +209,18 @@ def ai_move(board):
         }
 
         function resetGame() {
-            document.getElementById('board').innerHTML =
-                Array(9).fill().map((_, i) => `<div class='cell' onclick='playerMove(${i})'></div>`).join('');
+            const boardElement = document.getElementById('board');
+            // Reset board HTML and apply the correct CSS classes
+            boardElement.innerHTML = ''; // Clear the existing board
+            // Create a new set of cells
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.onclick = function() {
+                    playerMove(i);
+                };
+                boardElement.appendChild(cell);
+            }
             document.getElementById('status').innerText = "Your turn!";
         }
 
@@ -112,3 +231,4 @@ def ai_move(board):
     </footer>
 </body>
 </html>
+
