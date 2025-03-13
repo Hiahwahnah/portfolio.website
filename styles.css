@@ -64,6 +64,9 @@ h1, h2, h3 {
 .nav-links a:hover {
 	text-decoration: underline;
 }
+.header {
+    text-align: center; /* Centers text and inline elements */
+}
 /* Hero Section */
 .hero {
 	background: #ff0000;
